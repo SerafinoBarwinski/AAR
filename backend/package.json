@@ -22,7 +22,9 @@
   },
   "homepage": "https://github.com/BraucheeinPsychologe/AAR#readme",
   "dependencies": {
+    "cookie-parser": "^1.4.7",
     "express": "^5.2.1",
-    "fs": "^0.0.1-security"
+    "fs": "^0.0.1-security",
+    "ollama": "^0.6.3"
   }
 }

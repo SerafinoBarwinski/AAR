@@ -196,3 +196,16 @@ Native desktop container builds
 License
 
 To be added.
+
+
+--
+
+Why such a weard Port?
+
+49133
+
+49 → "7×7"
+
+133 → ASCII „AI“ (A=1, I=9, 1+3+3=7 → „7“)
+
+rarely used

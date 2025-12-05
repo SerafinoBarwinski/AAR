@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 { color: #333; margin-bottom: 30px; text-align: center; }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:active { transform: translateY(0); }
+        .message {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .message.error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+        .message.success {
+            background: #efe;
+            color: #3c3;
+            border: 1px solid #cfc;
+        }
+        .dashboard {
+            display: none;
+        }
+        .dashboard.active {
+            display: block;
+        }
+        .user-info {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .user-info strong { color: #667eea; }
+        .btn-secondary {
+            background: #6c757d;
+            margin-top: 10px;
+        }
+        .btn-secondary:hover { background: #5a6268; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Form -->
+        <div id="loginForm">
+            <h2>🔐 Login</h2>
+            <div id="message" class="message"></div>
+            <form onsubmit="login(event)">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit">Anmelden</button>
+            </form>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="dashboard">
+            <h2>✅ Dashboard</h2>
+            <div class="user-info">
+                <p><strong>Username:</strong> <span id="displayUsername"></span></p>
+                <p><strong>User ID:</strong> <span id="displayUserId"></span></p>
+
+
+                
+            </div>
+            <button onclick="loadDashboard()">Dashboard laden</button>
+            <button class="btn-secondary" onclick="logout()">Logout</button>
+            <div id="dashboardData" style="margin-top: 20px;"></div>
+        </div>
+    </div>
+
+    <script>
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = `message ${type}`;
+            msg.style.display = 'block';
+            setTimeout(() => msg.style.display = 'none', 5000);
+        }
+
+        async function login(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const res = await fetch(`/rest/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById('displayUsername').textContent = data.user.username;
+                    document.getElementById('displayUserId').textContent = data.user.id;
+                    document.getElementById('loginForm').style.display = 'none';
+                    document.getElementById('dashboard').classList.add('active');
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (err) {
+                showMessage('Verbindungsfehler', 'error');
+            }
+        }
+
+        async function loadDashboard() {
+            try {
+                const res = await fetch(`/dashboard`, {
+                    credentials: 'include'
+                });
+
+                const data = await res.json();
+                
+                if (data.message) {
+                    document.getElementById('dashboardData').innerHTML = `
+                        <div class="user-info">
+                            <p><strong>Dashboard:</strong> ${data.message}</p>
+                            <p><strong>Session User:</strong> ${data.user.username}</p>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                showMessage('Fehler beim Laden', 'error');
+            }
+        }
+
+        async function logout() {
+            try {
+                await fetch(`/rest/logout`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+
+                document.getElementById('loginForm').style.display = 'block';
+                document.getElementById('dashboard').classList.remove('active');
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+                document.getElementById('dashboardData').innerHTML = '';
+            } catch (err) {
+                showMessage('Logout-Fehler', 'error');
+            }
+        }
+    </script>
+</body>
+</html>
