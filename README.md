@@ -78,7 +78,7 @@ Project Structure
 ```
 AAR/
 │
-├── modules/           # Agent modules
+├── modules/      # Agent modules
 │   ├── time.js
 │   ├── battery.js
 │   └── ...
@@ -86,10 +86,13 @@ AAR/
 ├── backend/      # Backend
 │   └── main.js
 |
-├── frontend/              # Web user 
+├── frontend/     # Web Interface
+│   └── ...
+|
+├── mobileApp/    # App Interface
 │   └── ...
 │
-├── docker/
+├── docker/       # Docker
 │   └── Dockerfile
 │
 ├── .ENV
@@ -153,15 +156,9 @@ with the user always remaining in full control.
 
 Future Extensions (Planned)
 
-Role-based permission presets
-
-Secure module signing
-
-Automated tests for modules
-
-Enhanced sandboxing through isolated workers
-
-Native desktop container builds
+- Role-based permission presets
+- Enhanced sandboxing through isolated workers
+- container builds
 
 
 
